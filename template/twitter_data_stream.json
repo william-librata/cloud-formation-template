@@ -1,0 +1,133 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+    "Description" : "Template to create kinesis data stream from shards to data store.",
+    "Parameters" : {
+        "RetentionPeriod" : {
+            "Description" : "Twitter data stream retention period in hours.",
+            "Default" : "24",
+            "Type" : "Number"
+        },
+        "TotalShard" : {
+            "Description" : "Twitter data stream total shard",
+            "Default" : "2",
+            "Type" : "Number"
+        },
+        "AssociatePublicIpAddress" : {
+            "Description" : "Boolean to control association of public ip",
+            "Default" : "True",
+            "Type" : "String"
+        },
+        "IamInstanceProfile" : {
+            "Description" : "IAM profile name to be attached to EC2 instance",
+            "Default" : "DataStreamConsumer",
+            "Type" : "String"
+        },
+        "EbsOptimized" : {
+            "Description" : "Boolean to control the optimisation of EBS",
+            "Default" : "True",
+            "Type" : "String"
+        },
+        "ImageId" : {
+            "Description" : "AMI image ID",
+            "Default" : "ami-0c0483bc96aef8b2f",
+            "Type" : "String"
+        },
+        "InstanceType" : {
+            "Description" : "EC2 instance type",
+            "Default" : "t3.micro",
+            "Type" : "String"
+        },
+        "KeyName" : {
+            "Description" : "Public key pair name for logins",
+            "Default" : "20180301-PublicKey",
+            "Type" : "String"
+        },
+        "SubnetIdList" : {
+            "Description" : "List of subnet of the VPC",
+            "Default" : "subnet-03a2a784af6ebd6cd, subnet-071ebb89fb000890c, subnet-0e7695bb5c06abe2b",
+            "Type" : "CommaDelimitedList"
+        }
+    },
+    "Resources" : {
+        "TwitterDataStream" : {
+            "Type" : "AWS::Kinesis::Stream",
+            "Properties" : {
+                "Name" : "TwitterDataStream",
+                "RetentionPeriodHours" : {
+                    "Ref" : "RetentionPeriod"
+                },
+                "ShardCount" : {
+                    "Ref" : "TotalShard"
+                },
+                "Tags" : [
+                    {
+                        "Key" : "Name",
+                        "Value" : "TwitterDataStream"
+                    }
+                ]
+            }
+        },
+        "TwitterDataStreamConsumerLaunchConfiguration" : {
+            "Type" : "AWS::AutoScaling::LaunchConfiguration",
+            "Properties" : {
+                "AssociatePublicIpAddress" : {
+                    "Ref" : "AssociatePublicIpAddress"
+                },
+                "EbsOptimized" : {
+                    "Ref" : "EbsOptimized"
+                },
+                "IamInstanceProfile" : {
+                    "Ref" : "IamInstanceProfile"
+                },
+                "ImageId" : {
+                    "Ref" : "ImageId"
+                },
+                "InstanceMonitoring" : "True",
+                "InstanceType" : {
+                    "Ref" : "InstanceType"
+                },
+                "KeyName" : {
+                    "Ref" : "KeyName"
+                },
+                "LaunchConfigurationName" : "TwitterDataStreamConsumerLaunchConfiguration",
+                "PlacementTenancy" : "default",
+                "UserData" : ""
+            }
+        },
+        "TwitterDataStreamConsumerAutoScalingGroup" : {
+            "Type" : "AWS::AutoScaling::AutoScalingGroup",
+            "Properties" : {
+                "AutoScalingGroupName" : "TwitterDataStreamAutoScalingGroup",
+                "Cooldown" : "300",
+                "LaunchConfigurationName" : {
+                    "Ref" : "TwitterDataStreamConsumerLaunchConfiguration"
+                },
+                "DesiredCapacity" : {
+                    "Ref" : "TotalShard"
+                },
+                "MaxSize" : {
+                    "Ref" : "TotalShard"
+                },
+                "MinSize" : "1",
+                "VPCZoneIdentifier" : {
+                    "Ref" : "SubnetIdList"
+                },
+                "Tags" : [
+                    {
+                        "Key" : "Name",
+                        "PropagateAtLaunch" : "True",
+                        "Value" : "TwitterDataStreamConsumer"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs" : {
+        "StreamName" : {
+            "Value" : {
+                "Ref" : "TwitterDataStream"
+            },
+            "Description" : "Newly created data stream name."
+        }
+    }
+}

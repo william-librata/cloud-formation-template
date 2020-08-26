@@ -1,0 +1,42 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+    "Description" : "Template to create kinesis data stream from shards to data store.",
+    "Resources" : {
+        "TwitterData" : {
+            "Type" : "AWS::DynamoDB::Table",
+            "Properties" : {
+                "AttributeDefinitions" : [
+                    {
+                        "AttributeName" : "id",
+                        "AttributeType" : "N"
+                    }
+                ],
+                "KeySchema" : [
+                    {
+                        "AttributeName" : "id",
+                        "KeyType" : "HASH"
+                    }
+                ],
+                "TableName" : "TwitterData",
+                "ProvisionedThroughput" : {
+                    "ReadCapacityUnits" : "10",
+                    "WriteCapacityUnits" : "10"
+                },
+                "Tags" : [
+                    {
+                        "Key" : "Name",
+                        "Value" : "TwitterDataStream"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs" : {
+        "StreamName" : {
+            "Value" : {
+                "Ref" : "TwitterData"
+            },
+            "Description" : "Newly created DynamoDB table"
+        }
+    }
+}

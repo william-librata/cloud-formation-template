@@ -1,0 +1,98 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+    "Description" : "Template to create roles in aws.",
+    "Resources" : {
+        "DataStreamConsumerRole" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "AssumeRolePolicyDocument" : {
+                    "Version" : "2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect" : "Allow",
+                            "Principal" : {
+                                "Service" : [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action" : [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Description" : "Data consumer role",
+                "Path" : "/",
+                "RoleName" : "DataStreamConsumer",
+                "ManagedPolicyArns" : [
+                    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonKinesisFullAccess",
+                    "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+                ],
+                "Tags" : [
+                    {
+                        "Key" : "Name",
+                        "Value" : "DataStreamConsumer"
+                    }
+                ]
+            }
+        },
+        "AMICreatorRole" : {
+            "Type" : "AWS::IAM::Role",
+            "Properties" : {
+                "AssumeRolePolicyDocument" : {
+                    "Version" : "2012-10-17",
+                    "Statement" : [
+                        {
+                            "Effect" : "Allow",
+                            "Principal" : {
+                                "Service" : [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action" : [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Description" : "AMI creator role",
+                "Path" : "/",
+                "RoleName" : "AMICreatorRole",
+                "ManagedPolicyArns" : [
+                    "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess",
+                    "arn:aws:iam::aws:policy/AmazonKinesisFullAccess",
+                    "arn:aws:iam::aws:policy/AWSCodeCommitReadOnly"
+                ],
+                "Tags" : [
+                    {
+                        "Key" : "Name",
+                        "Value" : "AMICreatorRole"
+                    }
+                ]
+            }
+        },
+        "DataStreamConsumerInstanceProfile" : {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "InstanceProfileName" : "DataStreamConsumer",
+                "Roles" : [
+                    {
+                        "Ref" : "DataStreamConsumerRole"
+                    }
+                ]
+            }
+        },
+        "AMICreatorInstanceProfile" : {
+            "Type" : "AWS::IAM::InstanceProfile",
+            "Properties" : {
+                "InstanceProfileName" : "AMICreator",
+                "Roles" : [
+                    {
+                        "Ref" : "AMICreatorRole"
+                    }
+                ]
+            }
+        }
+    }
+}
