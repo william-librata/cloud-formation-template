@@ -14,10 +14,10 @@
         },
     },
     "Resources" : {
-        "KinesisStream" : {
+        "DataStream" : {
             "Type" : "AWS::Kinesis::Stream",
             "Properties" : {
-                "Name" : "KinesisStream",
+                "Name" : "DataStream",
                 "RetentionPeriodHours" : {
                     "Ref" : "RetentionPeriod"
                 },
@@ -27,16 +27,37 @@
                 "Tags" : [
                     {
                         "Key" : "Name",
-                        "Value" : "KinesisStream"
+                        "Value" : "DataStream"
                     }
                 ]
             }
         },
+        "StreamConsumer1" : {
+            "Type" : "AWS::Kinesis::StreamConsumer",
+            "Properties" : {
+                "ConsumerName" : "StreamConsumer1",
+                "StreamARN" : { "Fn::GetAtt" : [ "DataStream", "Arn" ] }
+            }
+        },
+        "StreamConsumer2" : {
+            "Type" : "AWS::Kinesis::StreamConsumer",
+            "Properties" : {
+                "ConsumerName" : "StreamConsumer2",
+                "StreamARN" : { "Fn::GetAtt" : [ "DataStream", "Arn" ] }
+            }
+        },
+        "StreamConsumer3" : {
+            "Type" : "AWS::Kinesis::StreamConsumer",
+            "Properties" : {
+                "ConsumerName" : "StreamConsumer3",
+                "StreamARN" : { "Fn::GetAtt" : [ "DataStream", "Arn" ] }
+            }
+        }
     },
     "Outputs" : {
         "StreamName" : {
             "Value" : {
-                "Ref" : "KinesisStream"
+                "Ref" : "DataStream"
             },
             "Description" : "Newly created data stream name."
         }
